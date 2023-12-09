@@ -1,7 +1,7 @@
 
 import { findByPropsLazy } from "@webpack";
 import definePlugin, { OptionType } from "@utils/types";
-import { ApplicationCommandInputType, ApplicationCommandOptionType, ApplicationCommandType, findOption, registerCommand, sendBotMessage, unregisterCommand } from "@api/Commands";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage} from "@api/Commands";
 import { MessageStore, UserStore } from "@webpack/common";
 import { Message, Channel } from "discord-types/general";
 import { MessageActions } from "@utils/discord";
@@ -11,7 +11,7 @@ const MessageDelete = findByPropsLazy("deleteMessage", "patchMessageAttachments"
 
 function DeleteMessages(amount: number, channel: Channel) {
     const meId = UserStore.getCurrentUser().id;
-    const messages: Message[] = MessageStore.getMessages(channel.id)._array.filter(m => m.author.id === meId).reverse().slice(0, amount);
+    const messages: Message[] = MessageStore.getMessages(channel.id)._array.filter((m: Message)=> m.author.id === meId).reverse().slice(0, amount);
     var msgs: Message[] = JSON.parse(JSON.stringify(messages));
     var counter = 0;
     msgs.forEach(msg=>{ MessageActions.deleteMessage(channel.id, msg.id); counter += 1});
@@ -34,8 +34,6 @@ export default definePlugin({
             default: true
         }
     },
-
-    async start() {},
     commands: [
         {
             name: "purge",
@@ -70,11 +68,8 @@ export default definePlugin({
                         const channel: Channel = findOption(args[0].options, "channel", ctx.channel);
                         const len = DeleteMessages(amount, channel);
                         return sendBotMessage(ctx.channel.id, {
-                            content: `Successfully deleted ${len} Messages`
+                            content: `Successfully deleted ${len} Messages for ${channel}`
                         })
-
-
-
                     }
 
                     default: {
@@ -87,5 +82,4 @@ export default definePlugin({
             }
         }
     ],
-    async end() {},
 })
